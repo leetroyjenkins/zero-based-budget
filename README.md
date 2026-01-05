@@ -13,18 +13,54 @@ A Streamlit-based budget management application for tracking household finances 
 
 ## Installation
 
-1. Clone or download this repository
-2. Install dependencies:
+### Prerequisites
+- Python 3.14 or higher
+- [uv](https://docs.astral.sh/uv/) package manager (recommended)
+
+### Setup with uv (Recommended)
+
+1. Clone or download this repository:
    ```bash
-   pip install -r requirements.txt
+   git clone <repository-url>
+   cd personal-budget
+   ```
+
+2. Install dependencies and create virtual environment:
+   ```bash
+   uv sync
    ```
 
 3. Initialize the database:
    ```bash
-   python init_db.py
+   uv run python init_db.py
    ```
 
 4. Run the Streamlit app:
+   ```bash
+   uv run streamlit run app.py
+   ```
+
+### Alternative Setup with pip
+
+1. Clone or download this repository
+
+2. Create a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```bash
+   pip install streamlit>=1.28.0 pandas>=2.0.0
+   ```
+
+4. Initialize the database:
+   ```bash
+   python init_db.py
+   ```
+
+5. Run the Streamlit app:
    ```bash
    streamlit run app.py
    ```
