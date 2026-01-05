@@ -4,12 +4,12 @@ Database initialization script for personal budget tracker.
 Creates the SQLite database schema for household budget management.
 """
 
-import sqlite3
 import os
+import sqlite3
 from datetime import datetime, timedelta
 
 
-def init_database(db_path='budget.db'):
+def init_database(db_path="budget.db"):
     """Initialize the budget database with required tables."""
 
     # Check if database already exists
@@ -19,17 +19,17 @@ def init_database(db_path='budget.db'):
     cursor = conn.cursor()
 
     # Create users table
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             is_active BOOLEAN DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    ''')
+    """)
 
     # Create income_sources table
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS income_sources (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -41,10 +41,10 @@ def init_database(db_path='budget.db'):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )
-    ''')
+    """)
 
     # Create paycheck_deductions table
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS paycheck_deductions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             income_source_id INTEGER NOT NULL,
@@ -56,10 +56,10 @@ def init_database(db_path='budget.db'):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (income_source_id) REFERENCES income_sources(id)
         )
-    ''')
+    """)
 
     # Create pay_periods table
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS pay_periods (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             income_source_id INTEGER NOT NULL,
@@ -72,10 +72,10 @@ def init_database(db_path='budget.db'):
             FOREIGN KEY (income_source_id) REFERENCES income_sources(id),
             UNIQUE(income_source_id, pay_date)
         )
-    ''')
+    """)
 
     # Create expense_categories table
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS expense_categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE,
@@ -83,10 +83,10 @@ def init_database(db_path='budget.db'):
             description TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    ''')
+    """)
 
     # Create monthly_expenses table
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS monthly_expenses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             category_id INTEGER NOT NULL,
@@ -98,10 +98,10 @@ def init_database(db_path='budget.db'):
             UNIQUE(category_id, year, month),
             FOREIGN KEY (category_id) REFERENCES expense_categories(id)
         )
-    ''')
+    """)
 
     # Create savings_goals table
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS savings_goals (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -112,10 +112,10 @@ def init_database(db_path='budget.db'):
             notes TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    ''')
+    """)
 
     # Create budget_periods table
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS budget_periods (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             year INTEGER NOT NULL,
@@ -124,31 +124,31 @@ def init_database(db_path='budget.db'):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE(year, month)
         )
-    ''')
+    """)
 
     # Insert default data if this is a new database
     if not db_exists:
         # Default expense categories
         default_categories = [
-            ('Housing (Rent/Mortgage)', 1, 'Monthly housing payment'),
-            ('Utilities', 1, 'Electric, water, gas, internet'),
-            ('Groceries', 0, 'Food and household items'),
-            ('Transportation', 0, 'Gas, car maintenance, public transit'),
-            ('Insurance', 1, 'Car, home, life insurance'),
-            ('Healthcare', 0, 'Medical expenses, prescriptions'),
-            ('Debt Payments', 1, 'Credit cards, loans'),
-            ('Entertainment', 0, 'Dining out, movies, hobbies'),
-            ('Clothing', 0, 'Apparel and accessories'),
-            ('Personal Care', 0, 'Haircuts, toiletries'),
-            ('Subscriptions', 1, 'Streaming services, memberships'),
-            ('Savings Transfer', 1, 'Monthly savings contribution'),
-            ('Emergency Fund', 0, 'Emergency savings'),
-            ('Miscellaneous', 0, 'Other expenses'),
+            ("Housing (Rent/Mortgage)", 1, "Monthly housing payment"),
+            ("Utilities", 1, "Electric, water, gas, internet"),
+            ("Groceries", 0, "Food and household items"),
+            ("Transportation", 0, "Gas, car maintenance, public transit"),
+            ("Insurance", 1, "Car, home, life insurance"),
+            ("Healthcare", 0, "Medical expenses, prescriptions"),
+            ("Debt Payments", 1, "Credit cards, loans"),
+            ("Entertainment", 0, "Dining out, movies, hobbies"),
+            ("Clothing", 0, "Apparel and accessories"),
+            ("Personal Care", 0, "Haircuts, toiletries"),
+            ("Subscriptions", 1, "Streaming services, memberships"),
+            ("Savings Transfer", 1, "Monthly savings contribution"),
+            ("Emergency Fund", 0, "Emergency savings"),
+            ("Miscellaneous", 0, "Other expenses"),
         ]
 
         cursor.executemany(
-            'INSERT INTO expense_categories (name, is_fixed, description) VALUES (?, ?, ?)',
-            default_categories
+            "INSERT INTO expense_categories (name, is_fixed, description) VALUES (?, ?, ?)",
+            default_categories,
         )
 
         print("Default expense categories added.")
@@ -169,7 +169,9 @@ def init_database(db_path='budget.db'):
         print("6. Create savings goals")
 
 
-def generate_pay_periods(db_path='budget.db', income_source_id=None, start_date=None, end_date=None):
+def generate_pay_periods(
+    db_path="budget.db", income_source_id=None, start_date=None, end_date=None
+):
     """
     Generate pay periods for an income source.
 
@@ -183,11 +185,14 @@ def generate_pay_periods(db_path='budget.db', income_source_id=None, start_date=
     cursor = conn.cursor()
 
     # Get income source details
-    cursor.execute('''
+    cursor.execute(
+        """
         SELECT annual_salary, pay_frequency, first_pay_date
         FROM income_sources
         WHERE id = ?
-    ''', (income_source_id,))
+    """,
+        (income_source_id,),
+    )
 
     result = cursor.fetchone()
     if not result:
@@ -199,23 +204,23 @@ def generate_pay_periods(db_path='budget.db', income_source_id=None, start_date=
 
     # Convert string dates to datetime
     if isinstance(first_pay_date, str):
-        first_pay_date = datetime.strptime(first_pay_date, '%Y-%m-%d')
+        first_pay_date = datetime.strptime(first_pay_date, "%Y-%m-%d")
     if isinstance(start_date, str):
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
     if isinstance(end_date, str):
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
     # Calculate gross amount per paycheck
-    if pay_frequency == 'weekly':
+    if pay_frequency == "weekly":
         paychecks_per_year = 52
         days_between = 7
-    elif pay_frequency == 'bi-weekly':
+    elif pay_frequency == "bi-weekly":
         paychecks_per_year = 26
         days_between = 14
-    elif pay_frequency == 'semi-monthly':
+    elif pay_frequency == "semi-monthly":
         paychecks_per_year = 24
         days_between = None  # Special handling needed
-    elif pay_frequency == 'monthly':
+    elif pay_frequency == "monthly":
         paychecks_per_year = 12
         days_between = None  # Special handling needed
 
@@ -227,17 +232,19 @@ def generate_pay_periods(db_path='budget.db', income_source_id=None, start_date=
 
     while current_date <= end_date:
         if current_date >= start_date:
-            pay_periods.append((
-                income_source_id,
-                current_date.strftime('%Y-%m-%d'),
-                gross_per_paycheck,
-                current_date.year
-            ))
+            pay_periods.append(
+                (
+                    income_source_id,
+                    current_date.strftime("%Y-%m-%d"),
+                    gross_per_paycheck,
+                    current_date.year,
+                )
+            )
 
         # Calculate next pay date
         if days_between:
             current_date += timedelta(days=days_between)
-        elif pay_frequency == 'semi-monthly':
+        elif pay_frequency == "semi-monthly":
             # 1st and 15th of month (simplified)
             if current_date.day == 1:
                 current_date = current_date.replace(day=15)
@@ -245,16 +252,19 @@ def generate_pay_periods(db_path='budget.db', income_source_id=None, start_date=
                 next_month = current_date.month + 1 if current_date.month < 12 else 1
                 next_year = current_date.year if current_date.month < 12 else current_date.year + 1
                 current_date = current_date.replace(year=next_year, month=next_month, day=1)
-        elif pay_frequency == 'monthly':
+        elif pay_frequency == "monthly":
             next_month = current_date.month + 1 if current_date.month < 12 else 1
             next_year = current_date.year if current_date.month < 12 else current_date.year + 1
             current_date = current_date.replace(year=next_year, month=next_month)
 
     # Insert pay periods
-    cursor.executemany('''
+    cursor.executemany(
+        """
         INSERT OR IGNORE INTO pay_periods (income_source_id, pay_date, gross_amount, year)
         VALUES (?, ?, ?, ?)
-    ''', pay_periods)
+    """,
+        pay_periods,
+    )
 
     conn.commit()
     count = cursor.rowcount
@@ -264,7 +274,7 @@ def generate_pay_periods(db_path='budget.db', income_source_id=None, start_date=
     return count
 
 
-def calculate_net_pay(db_path='budget.db', pay_period_id=None):
+def calculate_net_pay(db_path="budget.db", pay_period_id=None):
     """
     Calculate net pay for a pay period based on deductions.
 
@@ -277,39 +287,45 @@ def calculate_net_pay(db_path='budget.db', pay_period_id=None):
 
     # Get pay periods to calculate
     if pay_period_id:
-        cursor.execute('''
+        cursor.execute(
+            """
             SELECT id, income_source_id, gross_amount
             FROM pay_periods
             WHERE id = ?
-        ''', (pay_period_id,))
+        """,
+            (pay_period_id,),
+        )
         pay_periods = cursor.fetchall()
     else:
-        cursor.execute('''
+        cursor.execute("""
             SELECT id, income_source_id, gross_amount
             FROM pay_periods
             WHERE net_amount IS NULL
-        ''')
+        """)
         pay_periods = cursor.fetchall()
 
     for period_id, income_source_id, gross_amount in pay_periods:
         # Get deductions for this income source
-        cursor.execute('''
+        cursor.execute(
+            """
             SELECT name, calculation_type, amount, is_pre_tax
             FROM paycheck_deductions
             WHERE income_source_id = ? AND is_active = 1
-        ''', (income_source_id,))
+        """,
+            (income_source_id,),
+        )
 
         deductions = cursor.fetchall()
 
         # Get pay frequency for annual deduction calculations
-        cursor.execute('SELECT pay_frequency FROM income_sources WHERE id = ?', (income_source_id,))
+        cursor.execute("SELECT pay_frequency FROM income_sources WHERE id = ?", (income_source_id,))
         pay_frequency = cursor.fetchone()[0]
 
-        if pay_frequency == 'bi-weekly':
+        if pay_frequency == "bi-weekly":
             paychecks_per_year = 26
-        elif pay_frequency == 'weekly':
+        elif pay_frequency == "weekly":
             paychecks_per_year = 52
-        elif pay_frequency == 'semi-monthly':
+        elif pay_frequency == "semi-monthly":
             paychecks_per_year = 24
         else:  # monthly
             paychecks_per_year = 12
@@ -320,11 +336,11 @@ def calculate_net_pay(db_path='budget.db', pay_period_id=None):
         taxable_income = gross_amount
 
         for _, calc_type, amount, is_pre_tax in deductions:
-            if calc_type == 'percentage':
+            if calc_type == "percentage":
                 deduction = gross_amount * (amount / 100)
-            elif calc_type == 'fixed_per_paycheck':
+            elif calc_type == "fixed_per_paycheck":
                 deduction = amount
-            elif calc_type == 'fixed_annual':
+            elif calc_type == "fixed_annual":
                 deduction = amount / paychecks_per_year
             else:
                 deduction = 0
@@ -338,11 +354,14 @@ def calculate_net_pay(db_path='budget.db', pay_period_id=None):
         net_amount = gross_amount - total_pre_tax - total_post_tax
 
         # Update pay period with net amount
-        cursor.execute('''
+        cursor.execute(
+            """
             UPDATE pay_periods
             SET net_amount = ?
             WHERE id = ?
-        ''', (net_amount, period_id))
+        """,
+            (net_amount, period_id),
+        )
 
     conn.commit()
     count = len(pay_periods)
@@ -352,5 +371,5 @@ def calculate_net_pay(db_path='budget.db', pay_period_id=None):
     return count
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     init_database()

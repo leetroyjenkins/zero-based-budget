@@ -32,6 +32,13 @@ wheels/
 
 # uv
 
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+*.cover
+.hypothesis/
+
 # IDE
 .vscode/
 .idea/
@@ -49,3 +56,6 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+
+# AI
+CLAUDE.md

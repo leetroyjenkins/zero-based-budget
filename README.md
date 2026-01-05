@@ -72,6 +72,52 @@ A Streamlit-based budget management application for tracking household finances 
   - Savings goals progress
   - Expense breakdown
 
+## Testing
+
+This project includes a comprehensive test suite to ensure reliability.
+
+### Running Tests
+
+Run all tests:
+```bash
+uv run pytest
+```
+
+Run tests with coverage report:
+```bash
+uv run pytest --cov
+```
+
+Run specific test file:
+```bash
+uv run pytest tests/test_database.py
+```
+
+Run tests in verbose mode:
+```bash
+uv run pytest -v
+```
+
+### Test Coverage
+
+The test suite covers:
+- **Database Schema**: Table creation, constraints, and relationships
+- **Pay Period Generation**: Weekly, bi-weekly, semi-monthly, and monthly pay schedules
+- **Net Pay Calculation**: Percentage, fixed, and annual deductions (pre-tax and post-tax)
+- **Data Integrity**: Unique constraints, foreign keys, and validation
+- **Business Logic**: Income calculations, expense tracking, savings goals
+
+### Test Structure
+
+```
+tests/
+├── __init__.py
+├── conftest.py              # Pytest fixtures and configuration
+├── test_database.py         # Database schema and constraints
+├── test_pay_periods.py      # Pay period generation and calculations
+└── test_app_helpers.py      # Application helper functions
+```
+
 ## Database Schema
 
 - **users**: Household members
