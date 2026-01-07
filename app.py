@@ -151,7 +151,7 @@ def show_setup():
     # Display existing users
     users_df = pd.read_sql_query("SELECT * FROM users WHERE is_active = 1", conn)
     if not users_df.empty:
-        st.dataframe(users_df[["id", "name", "created_at"]], use_container_width=True)
+        st.dataframe(users_df[["id", "name", "created_at"]], width="stretch")
 
     with st.form("add_user_form"):
         user_name = st.text_input("Name")
@@ -186,7 +186,7 @@ def show_setup():
         )
 
         if not income_df.empty:
-            st.dataframe(income_df, use_container_width=True)
+            st.dataframe(income_df, width="stretch")
 
         with st.form("add_income_form"):
             col1, col2 = st.columns(2)
@@ -280,7 +280,7 @@ def show_income_deductions():
         display_df = deductions_df.copy()
         display_df["is_pre_tax"] = display_df["is_pre_tax"].map({1: "Yes", 0: "No"})
         display_df["is_active"] = display_df["is_active"].map({1: "Active", 0: "Inactive"})
-        st.dataframe(display_df, use_container_width=True)
+        st.dataframe(display_df, width="stretch")
 
         # Delete deduction
         with st.expander("Delete Deduction"):
@@ -436,7 +436,7 @@ def show_expenses():
     st.subheader(f"Budget for {datetime(selected_year, selected_month, 1).strftime('%B %Y')}")
 
     if not existing_expenses.empty:
-        st.dataframe(existing_expenses, use_container_width=True)
+        st.dataframe(existing_expenses, width="stretch")
         total = existing_expenses["planned_amount"].sum()
         st.metric("Total Planned Expenses", f"${total:,.2f}")
     else:
@@ -706,7 +706,7 @@ def show_pay_periods():
     )
 
     if not periods_df.empty:
-        st.dataframe(periods_df, use_container_width=True)
+        st.dataframe(periods_df, width="stretch")
 
         col1, col2, col3 = st.columns(3)
         with col1:
