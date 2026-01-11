@@ -79,24 +79,24 @@ docker-compose --version  # Should show version or use 'docker compose'
 ---
 
 ### 1.2 Backup and Clean Up Minecraft Server
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Estimated Time**: 45 minutes
 **Prerequisites**: Task 1.1 complete
 
 **Tasks**:
-- [ ] List Minecraft-related containers: `docker ps -a | grep minecraft`
-- [ ] Stop Minecraft containers: `docker stop <container-name>`
-- [ ] Backup any configuration files you want to keep:
+- [x] List Minecraft-related containers: `docker ps -a | grep minecraft`
+- [x] Stop Minecraft containers: `docker stop <container-name>`
+- [x] Backup any configuration files you want to keep:
   ```bash
   mkdir -p ~/backups/minecraft_config
   # Copy any important config files
   ```
-- [ ] Remove Minecraft containers: `docker rm <container-name>`
-- [ ] Remove Minecraft images: `docker rmi <image-name>`
-- [ ] Remove unused volumes: `docker volume ls` then `docker volume rm <volume-name>` if safe
-- [ ] Remove Minecraft directories (if any outside Docker)
-- [ ] Clean up Docker: `docker system prune -a`
-- [ ] Verify space freed: `df -h`
+- [x] Remove Minecraft containers: `docker rm <container-name>`
+- [x] Remove Minecraft images: `docker rmi <image-name>`
+- [x] Remove unused volumes: `docker volume ls` then `docker volume rm <volume-name>` if safe
+- [x] Remove Minecraft directories (if any outside Docker)
+- [x] Clean up Docker: `docker system prune -a`
+- [x] Verify space freed: `df -h`
 
 **Deliverable**: Clean Pi with Docker ready for new apps
 
@@ -110,21 +110,21 @@ df -h  # Should show increased available space
 ---
 
 ### 1.3 Update Pi System and Docker
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Estimated Time**: 30 minutes
 **Prerequisites**: Task 1.2 complete
 
 **Tasks**:
-- [ ] Update package lists: `sudo apt update`
-- [ ] Upgrade installed packages: `sudo apt upgrade -y`
-- [ ] Update Docker if needed: `sudo apt install --only-upgrade docker-ce docker-ce-cli containerd.io`
-- [ ] Install/update Docker Compose v2 if needed:
+- [x] Update package lists: `sudo apt update`
+- [x] Upgrade installed packages: `sudo apt upgrade -y`
+- [x] Update Docker if needed: `sudo apt install --only-upgrade docker-ce docker-ce-cli containerd.io`
+- [x] Install/update Docker Compose v2 if needed:
   ```bash
   sudo apt install docker-compose-plugin
   ```
-- [ ] Verify Docker Compose: `docker compose version`
-- [ ] Install utilities if missing: `sudo apt install -y git vim curl wget htop`
-- [ ] Reboot if kernel updated: `sudo reboot`
+- [x] Verify Docker Compose: `docker compose version`
+- [x] Install utilities if missing: `sudo apt install -y git vim curl wget htop`
+- [x] Reboot if kernel updated: `sudo reboot`
 
 **Deliverable**: Fully updated Pi system with latest Docker
 
@@ -138,15 +138,15 @@ uname -r  # Check kernel version updated
 ---
 
 ### 1.4 Configure Hostname and Network
-**Status**: ⬜ Not Started
+**Status**: Not Complete
 **Estimated Time**: 20 minutes
 **Prerequisites**: Task 1.3 complete
 
 **Tasks**:
-- [ ] Set hostname to "piserver":
+- [x] Set hostname to "piserver":
   ```bash
   sudo hostnamectl set-hostname piserver
-  sudo nano /etc/hosts  # Update 127.0.1.1 line to piserver
+  sudo sed -i 's/raspberrypi/piserver/g' /etc/hosts
   ```
 - [ ] Check current IP: `ip addr show`
 - [ ] Configure static IP if needed (via router DHCP reservation recommended)
@@ -165,19 +165,19 @@ ping piserver.local  # From another device, should respond
 ---
 
 ### 1.5 Create Application Directories
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Estimated Time**: 15 minutes
 **Prerequisites**: Task 1.4 complete
 
 **Tasks**:
-- [ ] Create apps directory: `mkdir -p ~/apps`
-- [ ] Create budget app directory: `mkdir -p ~/apps/budget`
-- [ ] Create shared data directory: `mkdir -p ~/apps/shared/certs`
-- [ ] Create Docker network for apps:
+- [x] Create apps directory: `mkdir -p ~/apps`
+- [x] Create budget app directory: `mkdir -p ~/apps/budget`
+- [x] Create shared data directory: `mkdir -p ~/apps/shared/certs`
+- [x] Create Docker network for apps:
   ```bash
   docker network create apps_network
   ```
-- [ ] Set up directory structure:
+- [x] Set up directory structure:
   ```
   ~/apps/
   ├── budget/          # Budget app code and compose file
