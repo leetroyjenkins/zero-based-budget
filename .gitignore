@@ -49,3 +49,10 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+
+# Docker
+db_data/
+*.tar
+
+# Private documentation (contains infrastructure details)
+docs/
