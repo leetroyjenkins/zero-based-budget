@@ -54,12 +54,6 @@ jobs:
           name: docker-compose
           path: docker-compose.yml
 
-      - name: Upload migrations
-        uses: actions/upload-artifact@v4
-        with:
-          name: migrations
-          path: migrations/
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -75,19 +69,13 @@ jobs:
         with:
           name: docker-compose
 
-      - name: Download migrations
-        uses: actions/download-artifact@v4
-        with:
-          name: migrations
-          path: migrations
-
       - name: Deploy to Raspberry Pi
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.PI_HOST }}
           username: ${{ secrets.PI_USER }}
           key: ${{ secrets.PI_SSH_KEY }}
-          source: "docker-compose.yml,budget-app.tar,migrations/"
+          source: "docker-compose.yml,budget-app.tar"
           target: "~/apps/budget"
 
       - name: Start containers on Pi
