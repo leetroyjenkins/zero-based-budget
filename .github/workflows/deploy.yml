@@ -59,6 +59,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: production  # Requires manual approval
     steps:
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+
       - name: Download Docker image
         uses: actions/download-artifact@v4
         with:
