@@ -320,6 +320,98 @@ Tom gets a raise starting in April:
 
 ---
 
+## Gas Expense Tracker
+
+### GT1: Fill-Up Logging
+- **Requirement**: Log individual gas fill-ups with detailed information
+- **Fields**:
+  - Date of fill-up
+  - Gallons purchased
+  - Price per gallon
+  - Total cost
+  - Odometer reading (optional, for MPG calculation)
+  - Station/location (optional)
+  - Notes (optional)
+- **Validation**: Total cost should approximately equal gallons x price per gallon (allow manual override for receipt accuracy)
+
+### GT2: Fill-Up History
+- **Requirement**: View and manage all logged fill-ups
+- **Details**:
+  - List view sorted by date (most recent first)
+  - Summary stats at top: monthly spend, average cost per gallon this month
+  - Edit and delete individual entries
+  - Sortable columns
+
+### GT3: Trends & Analytics
+- **Requirement**: Visualize gas spending patterns over time
+- **Charts/Data**:
+  - Cost per gallon over time (line chart)
+  - Monthly total spend (bar chart)
+  - MPG over time (calculated from consecutive odometer readings)
+  - Average gallons per fill-up
+- **Period**: Show trends for last 3, 6, and 12 months
+
+### GT4: Budget Integration
+- **Requirement**: Gas spending feeds into the main budget as a Transportation > Gas expense
+- **Details**:
+  - Monthly gas totals can populate the variable recurring expense for gas
+  - Helps with budgeting accuracy based on actual spending history
+- **Future**: Could auto-generate budget expense amounts based on historical averages
+
+---
+
+## House Down Payment Tracker
+
+### HD1: Account Balance Display
+- **Requirement**: Simple dashboard showing savings earmarked for a house down payment
+- **Details**:
+  - List of savings accounts/funds with current balances
+  - Grand total of all down payment savings
+  - Each account shows: name, current balance, notes
+- **Update Method**: Manual balance updates (user checks accounts and enters current balance)
+
+### HD2: Account Management
+- **Requirement**: Add, edit, and remove savings accounts from the tracker
+- **Details**:
+  - Add new account with name and current balance
+  - Edit account name, balance, and notes
+  - Delete accounts no longer relevant
+  - Track when each balance was last updated
+
+### HD3: Down Payment Summary
+- **Requirement**: Clear display of total available for a down payment
+- **Details**:
+  - Total across all tracked accounts
+  - Individual account breakdown
+  - Simple, at-a-glance view of savings progress
+
+---
+
+## House Purchase Calculator
+
+### RP6: House Buying Decision Tool
+- **Requirement**: Calculator to evaluate house purchase affordability
+- **Inputs**:
+  - House price
+  - Down payment amount (manual entry or auto-fill from Down Payment Tracker total)
+  - Closing costs (as percentage of house price or flat amount)
+  - Home inspection cost
+  - Appraisal cost
+  - Estimated repair/renovation expenses
+  - Moving costs
+  - Other one-time costs
+- **Outputs**:
+  - Line-item cost breakdown
+  - Total upfront costs (down payment + closing + all other costs)
+  - Money available (from down payment tracker or manual entry)
+  - Money remaining after purchase (or shortfall highlighted)
+- **Modes**:
+  - **Standalone**: All values entered manually
+  - **Connected**: Auto-populates down payment amount from the Down Payment Tracker
+- **Use Case**: Evaluate "if we buy a house at $X, how much do we have left for repairs and other needs?"
+
+---
+
 ## Out of Scope (MVP)
 
 ### Not Included in Initial Version:

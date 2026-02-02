@@ -36,8 +36,8 @@ Configure local development, Docker setup, and CI/CD pipeline
 ### Phase 3: Database & Docker Compose [0/4 complete]
 Create database schema and Docker Compose configuration
 
-### Phase 4: Application Development [0/8 complete]
-Build Flask application with all features
+### Phase 4: Application Development [0/11 complete]
+Build Flask application with all features (includes gas tracker, down payment tracker, house calculator)
 
 ### Phase 5: Deployment & Testing [0/5 complete]
 Deploy to Pi and validate functionality
@@ -57,15 +57,15 @@ Complete documentation and training
 **Prerequisites**: SSH access to Pi
 
 **Tasks**:
-- [ ] SSH to Pi: `ssh pi@piserver.local` (or current hostname)
-- [ ] Check current hostname: `hostname`
-- [ ] Check Docker version: `docker --version`
-- [ ] Check Docker Compose version: `docker-compose --version` or `docker compose version`
-- [ ] List running containers: `docker ps -a`
-- [ ] Check disk space: `df -h`
-- [ ] Check available memory: `free -h`
-- [ ] List installed packages: `dpkg -l | grep -E 'apache|mysql|mariadb'`
-- [ ] Document current state in session log
+- [x] SSH to Pi: `ssh pi@piserver.local` (or current hostname)
+- [x] Check current hostname: `hostname`
+- [x] Check Docker version: `docker --version`
+- [x] Check Docker Compose version: `docker-compose --version` or `docker compose version`
+- [x] List running containers: `docker ps -a`
+- [x] Check disk space: `df -h`
+- [x] Check available memory: `free -h`
+- [x] List installed packages: `dpkg -l | grep -E 'apache|mysql|mariadb'`
+- [x] Document current state in session log
 
 **Deliverable**: Understanding of current Pi setup
 
@@ -692,6 +692,57 @@ docker-compose exec db psql -U budget_user -d budget_db -c "\dt"  # Should show 
 
 The application development is framework-agnostic - whether running in Docker or directly on the host, Flask code is the same.
 
+### 4.9 Gas Expense Tracker
+**Status**: ⬜ Not Started
+**Prerequisites**: Base Flask app structure (models, routes, templates, base.html)
+
+**Tasks**:
+- [ ] Create `gas_fillups` table in `migrations/001_initial_schema.sql`
+- [ ] Add `GasFillup` model to `app/models.py`
+- [ ] Create `GasFillupForm` in `app/forms.py`
+- [ ] Create `app/routes/gas.py` blueprint (`/gas`)
+  - List fill-ups with summary stats (monthly spend, avg cost/gallon)
+  - Add/edit/delete fill-up forms
+  - Trends page with charts (cost/gallon over time, MPG, monthly totals)
+- [ ] Create templates: `gas/list.html`, `gas/form.html`, `gas/trends.html`
+- [ ] Add Chart.js to `app/static/js/` for trend visualization
+- [ ] Use SQLAlchemy `extract()` for date grouping (cross-DB compatible)
+
+**Deliverable**: Working gas tracker with CRUD and trend charts
+
+---
+
+### 4.10 House Down Payment Tracker
+**Status**: ⬜ Not Started
+**Prerequisites**: Base Flask app structure
+
+**Tasks**:
+- [ ] Create `down_payment_accounts` table in `migrations/001_initial_schema.sql`
+- [ ] Add `DownPaymentAccount` model to `app/models.py`
+- [ ] Create `app/routes/downpayment.py` blueprint (`/downpayment`)
+  - Dashboard showing accounts with balances and grand total
+  - Add/edit/delete account forms
+- [ ] Create templates: `downpayment/dashboard.html`, `downpayment/form.html`
+
+**Deliverable**: Simple balance display for down payment savings
+
+---
+
+### 4.11 House Purchase Calculator
+**Status**: ⬜ Not Started
+**Prerequisites**: Task 4.10 (Down Payment Tracker) for data integration
+
+**Tasks**:
+- [ ] Create `app/routes/house.py` blueprint (`/house`)
+  - Calculator form with inputs: house price, down payment, closing costs %, inspection, appraisal, repairs, moving costs
+  - POST handler: compute line-item breakdown and money remaining
+  - Auto-fill option: pull down payment total from Down Payment Tracker
+- [ ] Create template: `house/calculator.html`
+  - Display results: cost breakdown, total costs, money available, money remaining (or shortfall)
+  - Works standalone (all manual) or connected (pulls from DB)
+
+**Deliverable**: House purchase affordability calculator
+
 ---
 
 ## Phase 5: Deployment & Testing
@@ -913,22 +964,22 @@ Complete the same functional test checklist from original plan:
 ## Progress Tracking
 
 ### Current Status
-**Phase**: Phase 0 - Planning Complete
-**Last Updated**: 2026-01-10
-**Next Action**: Begin Phase 1, Task 1.1 - Assess Current Raspberry Pi Setup
+**Phase**: Phases 1-2 mostly complete, Phase 3+ pending
+**Last Updated**: 2026-02-01
+**Next Action**: Implement Phase 4 features (gas tracker, down payment tracker, house calculator)
 
 ### Completion Summary
-- [x] Functional requirements documented
-- [x] Database schema designed
-- [x] Project plan created (Docker version)
-- [ ] Infrastructure preparation (0/5 tasks)
-- [ ] Development environment (0/5 tasks)
+- [x] Functional requirements documented (updated with 3 new features)
+- [x] Database schema designed (updated with 2 new tables)
+- [x] Project plan created (Docker version, updated with tasks 4.9-4.11)
+- [x] Infrastructure preparation (4/5 tasks - Pi reimage pending)
+- [x] Development environment (5/5 tasks)
 - [ ] Database & Docker Compose (0/4 tasks)
-- [ ] Application development (0/8 tasks)
+- [ ] Application development (0/11 tasks)
 - [ ] Deployment & testing (0/5 tasks)
 - [ ] Documentation & handoff (0/3 tasks)
 
-**Overall Progress**: 3/33 tasks complete (9%)
+**Overall Progress**: 12/36 tasks complete (33%)
 
 ---
 

@@ -625,6 +625,70 @@ CREATE TABLE account_transactions (
 
 ---
 
+### 16. gas_fillups
+**Purpose**: Track individual gas fill-ups for expense tracking and trend analysis
+
+```sql
+CREATE TABLE IF NOT EXISTS gas_fillups (
+    id SERIAL PRIMARY KEY,
+    fill_date DATE NOT NULL,
+    gallons NUMERIC(8, 3) NOT NULL,
+    price_per_gallon NUMERIC(6, 3) NOT NULL,
+    total_cost NUMERIC(8, 2) NOT NULL,
+    odometer INTEGER,
+    station VARCHAR(100),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    INDEX idx_gas_fillups_date (fill_date DESC)
+);
+```
+
+**Sample Data**:
+```
+id | fill_date   | gallons | price_per_gallon | total_cost | odometer | station
+1  | 2026-01-28  | 12.500  | 3.199            | 39.99      | 45230    | Shell - Main St
+2  | 2026-01-21  | 11.800  | 3.249            | 38.34      | 44920    | Costco
+3  | 2026-01-14  | 13.200  | 3.099            | 40.91      | 44610    | Shell - Main St
+```
+
+**Notes**:
+- No user FK needed — personal household app, single-user model
+- `odometer` is nullable; when two consecutive fill-ups both have readings, MPG = (odometer2 - odometer1) / gallons2
+- `total_cost` stored explicitly (not computed) to match receipt totals and handle rounding
+
+---
+
+### 17. down_payment_accounts
+**Purpose**: Simple tracking of savings accounts earmarked for a house down payment
+
+```sql
+CREATE TABLE IF NOT EXISTS down_payment_accounts (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    balance NUMERIC(12, 2) NOT NULL DEFAULT 0.00,
+    notes TEXT,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Sample Data**:
+```
+id | name                | balance   | notes                    | updated_at
+1  | High-Yield Savings  | 18000.00  | Ally Bank                | 2026-01-28
+2  | Money Market         | 12000.00  | Marcus                   | 2026-01-28
+3  | House Fund (Checking)| 5000.00  | Chase earmarked portion  | 2026-01-15
+```
+
+**Notes**:
+- Deliberately simpler than the full `accounts` + `funds` schema — user requested "simple balance display"
+- User manually updates balances when they check their accounts
+- Grand total across all entries = total available for down payment
+- If the full budget app schema is implemented later, this table can be migrated or replaced
+
+---
+
 ## Key Queries
 
 ### Calculate Current Fund Balance
