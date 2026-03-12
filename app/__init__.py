@@ -1,10 +1,14 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
+import click
 import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
+csrf = CSRFProtect()
+
 
 def create_app():
     app = Flask(__name__)
@@ -16,21 +20,68 @@ def create_app():
 
     # Initialize extensions
     db.init_app(app)
+    csrf.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
 
-    # Register blueprints (will add these later)
-    # from app.routes import main, auth
-    # app.register_blueprint(main.bp)
-    # app.register_blueprint(auth.bp)
+    @login_manager.user_loader
+    def load_user(user_id):
+        from app.models import User
+        return User.query.get(int(user_id))
 
-    # Simple test route
+    # Register blueprints
+    from app.routes.auth import bp as auth_bp
+    from app.routes.house import bp as house_bp
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(house_bp)
+
+    # Simple home and health routes
     @app.route('/')
     def index():
-        return '<h1>Budget App</h1><p>Docker container is running!</p>'
+        from flask import redirect, url_for
+        return redirect(url_for('house.index'))
 
     @app.route('/health')
     def health():
         return {'status': 'healthy', 'database': 'connected'}
+
+    # CLI command: flask init-db
+    @app.cli.command('init-db')
+    def init_db():
+        """Create all tables and seed required data."""
+        from app.models import HouseProject
+        db.create_all()
+        click.echo('Tables created.')
+
+        # Seed the "General House Expenses" project if it doesn't exist
+        general = HouseProject.query.filter_by(name='General House Expenses').first()
+        if not general:
+            general = HouseProject(
+                name='General House Expenses',
+                description='Catch-all project for house expenses not tied to a specific project.',
+                status='in-progress',
+            )
+            db.session.add(general)
+            db.session.commit()
+            click.echo('Seeded "General House Expenses" project.')
+        else:
+            click.echo('"General House Expenses" project already exists.')
+
+    # CLI command: flask create-user
+    @app.cli.command('create-user')
+    @click.argument('username')
+    @click.password_option()
+    def create_user(username, password):
+        """Create a user account. Usage: flask create-user <username>"""
+        from app.models import User
+        db.create_all()
+        if User.query.filter_by(username=username).first():
+            click.echo(f'User "{username}" already exists.')
+            return
+        user = User(username=username)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+        click.echo(f'User "{username}" created.')
 
     return app

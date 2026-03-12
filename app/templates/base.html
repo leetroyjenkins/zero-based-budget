@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Budget App{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; }
+    .navbar-brand { font-weight: 700; }
+    .card { border: none; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .stat-card .display-6 { font-size: 1.6rem; }
+    .table th { font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: #6c757d; }
+    /* Chart responsive height */
+    .chart-container { height: 220px; }
+    @media (min-width: 576px) { .chart-container { height: 280px; } }
+    @media (min-width: 992px) { .chart-container { height: 320px; } }
+    /* Tighter side padding on phones */
+    @media (max-width: 575px) {
+      .container-fluid { padding-left: .75rem !important; padding-right: .75rem !important; }
+      .stat-card .display-6 { font-size: 1.25rem; }
+    }
+    /* Touch-friendly minimum tap target */
+    .btn { min-height: 36px; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Budget App</a>
+    {% if current_user.is_authenticated %}
+    <div class="d-flex align-items-center ms-auto me-2">
+      <a href="{{ url_for('auth.profile') }}" class="text-secondary me-2 text-decoration-none" title="{{ current_user.username }}">
+        <i class="bi bi-person-circle"></i>
+        <span class="d-none d-sm-inline small">{{ current_user.username }}</span>
+      </a>
+      <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-secondary">
+        <span class="d-none d-sm-inline">Sign out</span>
+        <i class="bi bi-box-arrow-right d-sm-none"></i>
+      </a>
+    </div>
+    {% endif %}
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle {% if request.blueprint == 'house' %}active{% endif %}"
+             href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-house-door"></i> House
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('house.index') }}">
+              <i class="bi bi-bar-chart"></i> Tally
+            </a></li>
+            <li><a class="dropdown-item" href="{{ url_for('house.expenses') }}">
+              <i class="bi bi-receipt"></i> Expenses
+            </a></li>
+            <li><a class="dropdown-item" href="{{ url_for('house.projects') }}">
+              <i class="bi bi-kanban"></i> Projects
+            </a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('house.retailers') }}">
+              <i class="bi bi-shop"></i> Retailers
+            </a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid px-3 px-md-4">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h4 mb-0">{{ title }}</h2>
+      <a href="{{ url_for('house.projects') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form method="post">
+          {{ form.hidden_tag() }}
+          {% if popup %}<input type="hidden" name="popup" value="1">{% endif %}
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">{{ form.name.label.text }}</label>
+              {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="e.g. Bathroom Remodel") }}
+              {% for e in form.name.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.status.label.text }}</label>
+              {{ form.status(class="form-select") }}
+            </div>
+
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.room.label.text }}</label>
+              {{ form.room(class="form-control", placeholder="e.g. Kitchen, Roof, Exterior…") }}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">{{ form.description.label.text }}</label>
+              {{ form.description(class="form-control", rows=3, placeholder="Describe the project…") }}
+            </div>
+
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.budget.label.text }}</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                {{ form.budget(class="form-control" + (" is-invalid" if form.budget.errors else ""), placeholder="0.00") }}
+              </div>
+              {% for e in form.budget.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="col-sm-6"></div>
+
+            <div class="col-sm-4">
+              <label class="form-label">{{ form.start_date.label.text }}</label>
+              {{ form.start_date(class="form-control" + (" is-invalid" if form.start_date.errors else "")) }}
+              {% for e in form.start_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="col-sm-4">
+              <label class="form-label">{{ form.estimated_end_date.label.text }}</label>
+              {{ form.estimated_end_date(class="form-control" + (" is-invalid" if form.estimated_end_date.errors else "")) }}
+              {% for e in form.estimated_end_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="col-sm-4">
+              <label class="form-label">{{ form.actual_end_date.label.text }}</label>
+              {{ form.actual_end_date(class="form-control" + (" is-invalid" if form.actual_end_date.errors else "")) }}
+              {% for e in form.actual_end_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save Project</button>
+            <a href="{{ url_for('house.projects') }}" class="btn btn-outline-secondary">Cancel</a>
+            {% if project and not project.expenses %}
+            <form method="post" action="{{ url_for('house.delete_project', project_id=project.id) }}"
+                  class="ms-auto" onsubmit="return confirm('Delete this project?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-outline-danger">Delete</button>
+            </form>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

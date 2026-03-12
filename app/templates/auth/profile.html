@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-sm-8 col-md-6 col-lg-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h4 mb-0">My Profile</h2>
+      <a href="{{ url_for('house.index') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form method="post">
+          {{ form.hidden_tag() }}
+
+          <div class="mb-3">
+            <label class="form-label">{{ form.username.label.text }}</label>
+            {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
+            {% for e in form.username.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ form.email.label.text }} <span class="text-muted small fw-normal">(optional)</span></label>
+            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="you@example.com") }}
+            {% for e in form.email.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+
+          <hr>
+          <p class="text-muted small">Leave new password blank to keep your current password.</p>
+
+          <div class="mb-3">
+            <label class="form-label">{{ form.new_password.label.text }}</label>
+            {{ form.new_password(class="form-control" + (" is-invalid" if form.new_password.errors else ""), placeholder="Min. 8 characters") }}
+            {% for e in form.new_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ form.confirm_password.label.text }}</label>
+            {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else "")) }}
+            {% for e in form.confirm_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+
+          <hr>
+
+          <div class="mb-3">
+            <label class="form-label">{{ form.current_password.label.text }} <span class="text-danger small">*required to save</span></label>
+            {{ form.current_password(class="form-control" + (" is-invalid" if form.current_password.errors else "")) }}
+            {% for e in form.current_password.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

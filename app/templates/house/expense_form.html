@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h2 class="h4 mb-0">{{ title }}</h2>
+      <a href="{{ url_for('house.expenses') }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <form method="post">
+          {{ form.hidden_tag() }}
+
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.expenditure_date.label.text }}</label>
+              {{ form.expenditure_date(class="form-control" + (" is-invalid" if form.expenditure_date.errors else "")) }}
+              {% for e in form.expenditure_date.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.category.label.text }}</label>
+              {{ form.category(class="form-select" + (" is-invalid" if form.category.errors else "")) }}
+              {% for e in form.category.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">{{ form.item.label.text }}</label>
+              {{ form.item(class="form-control" + (" is-invalid" if form.item.errors else ""), placeholder="e.g. 2x4 lumber, faucet replacement, drywall…") }}
+              {% for e in form.item.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.price.label.text }}</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                {{ form.price(class="form-control" + (" is-invalid" if form.price.errors else ""), placeholder="0.00") }}
+              </div>
+              {% for e in form.price.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+              <label class="form-label">
+                {{ form.tax.label.text }}
+                <span class="text-muted small fw-normal">(leave blank for 5.5%)</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                {{ form.tax(class="form-control" + (" is-invalid" if form.tax.errors else ""), placeholder="auto") }}
+              </div>
+              {% for e in form.tax.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+            </div>
+
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.project_id.label.text }}</label>
+              {{ form.project_id(class="form-select" + (" is-invalid" if form.project_id.errors else "")) }}
+              {% for e in form.project_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+              <div class="form-text">
+                <a href="{{ url_for('house.add_project') }}?popup=1" target="_blank">+ Add project</a>
+              </div>
+            </div>
+
+            <div class="col-sm-6">
+              <label class="form-label">{{ form.retailer_id.label.text }}</label>
+              {{ form.retailer_id(class="form-select") }}
+              <div class="form-text">
+                <a href="{{ url_for('house.add_retailer') }}?popup=1" target="_blank">+ Add retailer</a>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">{{ form.description.label.text }}</label>
+              {{ form.description(class="form-control", rows=3, placeholder="Optional notes…") }}
+            </div>
+          </div>
+
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Save Expense</button>
+            <a href="{{ url_for('house.expenses') }}" class="btn btn-outline-secondary">Cancel</a>
+            {% if expense %}
+            <form method="post" action="{{ url_for('house.delete_expense', expense_id=expense.id) }}"
+                  class="ms-auto" onsubmit="return confirm('Delete this expense?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-outline-danger">Delete</button>
+            </form>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.addEventListener('message', function(e) {
+  if (e.data.type === 'newProject') {
+    var sel = document.getElementById('project_id');
+    var opt = new Option(e.data.name, e.data.id, true, true);
+    sel.add(opt);
+  }
+  if (e.data.type === 'newRetailer') {
+    var sel = document.getElementById('retailer_id');
+    var opt = new Option(e.data.name, e.data.id, true, true);
+    sel.add(opt);
+  }
+});
+</script>
+{% endblock %}
