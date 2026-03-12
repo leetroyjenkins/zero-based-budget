@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - main  # Auto-deploy on push to main (after PR merge)
+  pull_request:
+    branches:
+      - main  # Run tests on PRs targeting main
 
 jobs:
   test:
@@ -27,6 +30,7 @@ jobs:
 
   build:
     needs: test
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
