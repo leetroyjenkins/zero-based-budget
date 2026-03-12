@@ -4,7 +4,7 @@ from wtforms import (
     SelectField, URLField, BooleanField, PasswordField
 )
 from wtforms.validators import DataRequired, Optional, Length, NumberRange, URL, ValidationError, Email, EqualTo
-from app.models import HOUSE_EXPENSE_CATEGORIES
+from app.models import HOUSE_EXPENSE_CATEGORIES, TODO_PRIORITIES
 
 
 class LoginForm(FlaskForm):
@@ -51,6 +51,15 @@ class HouseProjectForm(FlaskForm):
     def validate_actual_end_date(self, field):
         if field.data and self.start_date.data and field.data < self.start_date.data:
             raise ValidationError('Actual end date must be on or after start date.')
+
+
+class HouseTodoForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(max=200)])
+    description = TextAreaField('Description', validators=[Optional()])
+    project_id = SelectField('Project', coerce=int, validators=[Optional()])
+    start_date = DateField('Start Date', validators=[Optional()])
+    due_date = DateField('Due Date', validators=[Optional()])
+    priority = SelectField('Priority', choices=[(p, p) for p in TODO_PRIORITIES], default='Medium')
 
 
 class HouseExpenseForm(FlaskForm):
