@@ -74,6 +74,32 @@ class HouseProject(db.Model):
         return f'<HouseProject {self.name}>'
 
 
+TODO_PRIORITIES = ['High', 'Medium', 'Low']
+
+
+class HouseTodo(db.Model):
+    __tablename__ = 'house_todos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('house_projects.id'), nullable=True)
+    start_date = db.Column(db.Date, nullable=True)
+    due_date = db.Column(db.Date, nullable=True)
+    priority = db.Column(db.String(10), nullable=False, default='Medium')
+    sort_order = db.Column(db.Integer, nullable=False, default=0)
+    completed = db.Column(db.Boolean, nullable=False, default=False)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    project = db.relationship('HouseProject', backref='todos')
+
+    def __repr__(self):
+        return f'<HouseTodo {self.title}>'
+
+
 HOUSE_EXPENSE_CATEGORIES = [
     'Materials',
     'Labor',

@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}To-Do List – House{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+  <h4 class="mb-0"><i class="bi bi-check2-square"></i> To-Do List</h4>
+  <a href="{{ url_for('todos.add_todo') }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg"></i> Add To-Do
+  </a>
+</div>
+
+{# Filter bar #}
+<form method="get" class="card card-body mb-3 p-2">
+  <div class="row g-2 align-items-end">
+    <div class="col-6 col-md-auto">
+      <label class="form-label form-label-sm mb-1">Sort by</label>
+      <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+        <option value="priority" {% if sort_by == 'priority' %}selected{% endif %}>Priority Order</option>
+        <option value="due_date" {% if sort_by == 'due_date' %}selected{% endif %}>Due Date</option>
+        <option value="start_date" {% if sort_by == 'start_date' %}selected{% endif %}>Start Date</option>
+      </select>
+    </div>
+    <div class="col-6 col-md-auto">
+      <label class="form-label form-label-sm mb-1">Project</label>
+      <select name="project_id" class="form-select form-select-sm" onchange="this.form.submit()">
+        <option value="">All</option>
+        <option value="0" {% if filter_project_id == 0 %}selected{% endif %}>General Upkeep</option>
+        {% for p in all_projects %}
+          <option value="{{ p.id }}" {% if filter_project_id == p.id %}selected{% endif %}>{{ p.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <div class="form-check mt-4">
+        <input class="form-check-input" type="checkbox" name="show_completed" value="1"
+               id="showCompleted" {% if show_completed %}checked{% endif %} onchange="this.form.submit()">
+        <label class="form-check-label small" for="showCompleted">Show completed</label>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% if todos %}
+<div class="card">
+  <ul class="list-group list-group-flush" id="todo-list"
+      data-sortable="{{ 'true' if sort_by == 'priority' else 'false' }}">
+    {% for todo in todos %}
+    <li class="list-group-item py-3 {% if todo.completed %}opacity-50{% endif %}"
+        data-id="{{ todo.id }}">
+      <div class="d-flex gap-3 align-items-start">
+
+        {# Drag handle – only visible when sorting by priority #}
+        <span class="drag-handle text-secondary mt-1 {% if sort_by != 'priority' %}d-none{% endif %}"
+              style="cursor:grab; font-size:1.1rem;">
+          <i class="bi bi-grip-vertical"></i>
+        </span>
+
+        {# Complete toggle #}
+        <button class="btn btn-sm p-0 border-0 complete-btn mt-1" data-id="{{ todo.id }}"
+                title="{{ 'Mark incomplete' if todo.completed else 'Mark complete' }}"
+                style="font-size:1.2rem; color: {{ '#198754' if todo.completed else '#adb5bd' }};">
+          <i class="bi bi-{{ 'check-circle-fill' if todo.completed else 'circle' }}"></i>
+        </button>
+
+        {# Content #}
+        <div class="flex-grow-1 min-w-0">
+          <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <span class="fw-semibold {% if todo.completed %}text-decoration-line-through{% endif %}">
+              {{ todo.title }}
+            </span>
+            {# Priority badge #}
+            {% if todo.priority == 'High' %}
+              <span class="badge bg-danger">High</span>
+            {% elif todo.priority == 'Medium' %}
+              <span class="badge bg-warning text-dark">Medium</span>
+            {% else %}
+              <span class="badge bg-info text-dark">Low</span>
+            {% endif %}
+            {# Project tag #}
+            {% if todo.project %}
+              <span class="badge bg-secondary">{{ todo.project.name }}</span>
+            {% else %}
+              <span class="badge bg-light text-secondary border">General Upkeep</span>
+            {% endif %}
+          </div>
+          {% if todo.description %}
+            <p class="text-muted small mb-1">{{ todo.description }}</p>
+          {% endif %}
+          <div class="d-flex flex-wrap gap-3 small text-muted">
+            {% if todo.start_date %}
+              <span><i class="bi bi-calendar-event"></i> Start {{ todo.start_date.strftime('%b %-d, %Y') }}</span>
+            {% endif %}
+            {% if todo.due_date %}
+              <span class="{{ 'text-danger fw-semibold' if not todo.completed and todo.due_date < today else '' }}">
+                <i class="bi bi-calendar-check"></i> Due {{ todo.due_date.strftime('%b %-d, %Y') }}
+              </span>
+            {% endif %}
+            {% if todo.completed and todo.completed_at %}
+              <span class="text-success"><i class="bi bi-check-lg"></i> Done {{ todo.completed_at.strftime('%b %-d') }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {# Actions #}
+        <div class="d-flex gap-1 flex-shrink-0">
+          <a href="{{ url_for('todos.edit_todo', todo_id=todo.id) }}"
+             class="btn btn-sm btn-outline-secondary" title="Edit">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <form method="post" action="{{ url_for('todos.delete_todo', todo_id=todo.id) }}"
+                onsubmit="return confirm('Remove this to-do?')">
+            {{ csrf_token() | safe if csrf_token is defined else '' }}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% else %}
+<div class="text-center text-muted py-5">
+  <i class="bi bi-check2-all" style="font-size:2.5rem;"></i>
+  <p class="mt-2">No to-dos found.
+    {% if show_completed %} Try hiding completed items.
+    {% else %} <a href="{{ url_for('todos.add_todo') }}">Add one!</a>{% endif %}
+  </p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+const list = document.getElementById('todo-list');
+const sortable = list && list.dataset.sortable === 'true';
+
+if (sortable) {
+  Sortable.create(list, {
+    handle: '.drag-handle',
+    animation: 150,
+    onEnd: function () {
+      const items = list.querySelectorAll('li[data-id]');
+      const order = Array.from(items).map((el, i) => ({
+        id: parseInt(el.dataset.id),
+        sort_order: i + 1,
+      }));
+      fetch('{{ url_for("todos.reorder_todos") }}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token() }}',
+        },
+        body: JSON.stringify(order),
+      });
+    },
+  });
+}
+
+// Complete toggle
+document.querySelectorAll('.complete-btn').forEach(btn => {
+  btn.addEventListener('click', function () {
+    const id = this.dataset.id;
+    fetch(`/house/todos/${id}/complete`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': '{{ csrf_token() }}' },
+    })
+    .then(r => r.json())
+    .then(data => {
+      // Reload to respect show_completed filter
+      window.location.reload();
+    });
+  });
+});
+</script>
+{% endblock %}
