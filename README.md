@@ -1,145 +1,82 @@
-# Personal Budget Manager
+# pi-house
 
-A Streamlit-based budget management application for tracking household finances on a Raspberry Pi.
+A self-hosted home management app designed to run on a Raspberry Pi on your local network. Built with Flask and PostgreSQL, deployed via Docker with a GitHub Actions CI/CD pipeline.
 
 ## Features
 
-- **Bi-weekly Pay Periods**: Automatically generates pay dates based on your pay schedule
-- **Paycheck Deductions**: Track taxes, healthcare, 401k, and other deductions (pre-tax and post-tax)
-- **Monthly Expense Budgets**: Plan expenses by category for any month/year
-- **Savings Goals**: Set and track progress toward savings targets
-- **Multi-user Support**: Track combined finances for household members
-- **Automatic Net Pay Calculation**: Calculates take-home pay based on deductions
+- **House Expense Tracking** — log expenses by project and retailer, with a dashboard showing spending by category, project, and month (Chart.js)
+- **Project Management** — organize expenses under house projects, track totals per project
+- **Retailer Management** — maintain a reusable list of retailers with soft-delete
+- **To-Do Lists** — household task tracking
+- **Tile & Table Views** — toggle between views on expenses and projects (preference saved to localStorage)
+- **Filters** — filter by project, year, month, quarter, and category
+- **Authentication** — Flask-Login with user profile management (username, email, password)
+- **Mobile Responsive** — works well on phones and tablets
 
-## Installation
+## Tech Stack
+
+- **Backend**: Flask + PostgreSQL
+- **Frontend**: Jinja2 templates, Bootstrap, Chart.js
+- **Deployment**: Docker + Docker Compose on Raspberry Pi
+- **CI/CD**: GitHub Actions (runs tests on PRs, deploys to Pi on merge to main)
+- **Remote Access**: Tailscale
+
+## Getting Started
 
 ### Prerequisites
-- Python 3.14 or higher
-- [uv](https://docs.astral.sh/uv/) package manager (recommended)
 
-### Setup with uv (Recommended)
+- Raspberry Pi 4 or 5 running Raspberry Pi OS (64-bit)
+- Docker and Docker Compose installed on the Pi
+- Python 3.11+ (for local development)
+- A GitHub account (for CI/CD)
 
-1. Clone or download this repository:
+### Local Development
+
+1. Clone the repo:
    ```bash
-   git clone <repository-url>
-   cd personal-budget
+   git clone https://github.com/leetroyjenkins/pi-house.git
+   cd pi-house
    ```
 
-2. Install dependencies and create virtual environment:
+2. Copy the example env file and fill in your values:
    ```bash
-   uv sync
+   cp .env.example .env
    ```
 
-3. Initialize the database:
+3. Start the app with Docker Compose:
    ```bash
-   uv run python init_db.py
+   docker compose up
    ```
 
-4. Run the Streamlit app:
+4. Initialize the database and create your first user:
    ```bash
-   uv run streamlit run app.py
+   docker compose exec web flask init-db
+   docker compose exec web flask create-user
    ```
 
-### Alternative Setup with pip
+5. Visit `http://localhost:5000`
 
-1. Clone or download this repository
+### Deploying to a Raspberry Pi
 
-2. Create a virtual environment:
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   ```
+See [`docs/DEPLOYMENT_PLAN.md`](docs/DEPLOYMENT_PLAN.md) for a full walkthrough of setting up the Pi, configuring Docker, and wiring up the GitHub Actions deployment pipeline.
 
-3. Install dependencies:
-   ```bash
-   pip install streamlit>=1.28.0 pandas>=2.0.0
-   ```
+## Project Structure
 
-4. Initialize the database:
-   ```bash
-   python init_db.py
-   ```
+```
+pi-house/
+├── app/
+│   ├── routes/         # Flask blueprints (auth, house, todos)
+│   ├── templates/      # Jinja2 HTML templates
+│   ├── models.py       # SQLAlchemy models
+│   └── forms.py        # WTForms
+├── docs/               # Deployment and setup guides
+├── migrations/         # Database migrations
+├── tests/
+├── .github/workflows/  # CI/CD pipeline
+├── docker-compose.yml
+└── Dockerfile
+```
 
-5. Run the Streamlit app:
-   ```bash
-   streamlit run app.py
-   ```
+## Related
 
-## Usage Guide
-
-### 1. Initial Setup
-- Navigate to the **Setup** page
-- Add yourself and your spouse as users
-- Add income sources (jobs) with annual salary, pay frequency, and first pay date
-
-### 2. Configure Deductions
-- Go to **Income & Deductions**
-- Add paycheck deductions like:
-  - Federal Tax (percentage)
-  - State Tax (percentage)
-  - Social Security (percentage)
-  - Medicare (percentage)
-  - 401k contributions (percentage or fixed, pre-tax)
-  - Health insurance (fixed per paycheck)
-  - HSA contributions (pre-tax)
-- View sample paycheck calculation to verify
-
-### 3. Generate Pay Periods
-- Go to **Pay Periods**
-- Select income source and date range (e.g., entire year)
-- Click "Generate Pay Periods" to create all pay dates
-- Net pay is automatically calculated based on deductions
-
-### 4. Set Monthly Budgets
-- Go to **Expenses**
-- Select month and year
-- Add planned expenses for each category
-- Use "Copy from previous month" for recurring expenses
-
-### 5. Create Savings Goals
-- Go to **Savings Goals**
-- Add goals with target amounts and dates
-- Update progress as you save
-
-### 6. Monitor Dashboard
-- View the **Dashboard** for an overview:
-  - Monthly income vs expenses
-  - Available savings
-  - Savings goals progress
-  - Expense breakdown
-
-## Database Schema
-
-- **users**: Household members
-- **income_sources**: Jobs with salary and pay schedule
-- **paycheck_deductions**: Taxes and benefits
-- **pay_periods**: Generated pay dates with calculated net amounts
-- **expense_categories**: Budget categories
-- **monthly_expenses**: Planned spending by month
-- **savings_goals**: Savings targets and progress
-- **budget_periods**: Monthly budget tracking
-
-## Running on Raspberry Pi
-
-This app is designed to run on a Raspberry Pi:
-
-1. Install Python 3.7+ on your Raspberry Pi
-2. Follow installation steps above
-3. Run the app:
-   ```bash
-   streamlit run app.py
-   ```
-4. Access the app in your browser at `http://localhost:8501` or `http://<raspberry-pi-ip>:8501`
-
-## Tips
-
-- **Deduction Types**:
-  - `percentage`: Deducts a % of gross pay (e.g., 15% for federal tax)
-  - `fixed_per_paycheck`: Fixed amount each paycheck (e.g., $200 for health insurance)
-  - `fixed_annual`: Annual amount divided across paychecks (e.g., $2,400/year HSA)
-
-- **Pre-tax vs Post-tax**: Mark deductions like 401k and HSA as pre-tax to reduce taxable income
-
-- **Pay Frequencies**: Supports weekly, bi-weekly, semi-monthly (1st & 15th), and monthly
-
-- **Multi-year**: Generate pay periods for any year to plan future budgets
+- [pi-budget](https://github.com/leetroyjenkins/pi-budget) — A zero-based budgeting app for Raspberry Pi (in development). Uses the same deployment architecture as this project.
