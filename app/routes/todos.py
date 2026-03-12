@@ -3,7 +3,7 @@ from flask_login import login_required
 from app import db
 from app.models import HouseTodo, HouseProject
 from app.forms import HouseTodoForm
-from datetime import datetime
+from datetime import datetime, date
 
 bp = Blueprint('todos', __name__, url_prefix='/house/todos')
 
@@ -63,6 +63,7 @@ def index():
         sort_by=sort_by,
         filter_project_id=project_id,
         show_completed=show_completed,
+        today=date.today(),
     )
 
 
