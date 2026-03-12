@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}House Tally{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h4 mb-0"><i class="bi bi-bar-chart me-2"></i>House Expense Tally</h2>
+  <a href="{{ url_for('house.add_expense') }}" class="btn btn-primary btn-sm">
+    <i class="bi bi-plus-lg"></i> Add Expense
+  </a>
+</div>
+
+{# ---- Filters ---- #}
+<div class="card mb-4">
+  <div class="card-body py-2">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-6 col-sm-4 col-md-auto">
+        <label class="form-label small mb-1">Project</label>
+        <select name="project_id" class="form-select form-select-sm">
+          <option value="">All Projects</option>
+          {% for p in all_projects %}
+            <option value="{{ p.id }}" {% if filter_project_id == p.id %}selected{% endif %}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-sm-4 col-md-auto">
+        <label class="form-label small mb-1">Year</label>
+        <select name="year" class="form-select form-select-sm">
+          <option value="">All Years</option>
+          {% for y in available_years %}
+            <option value="{{ y }}" {% if filter_year == y %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-sm-4 col-md-auto">
+        <label class="form-label small mb-1">Month</label>
+        <select name="month" class="form-select form-select-sm">
+          <option value="">All Months</option>
+          {% for m, label in [(1,'Jan'),(2,'Feb'),(3,'Mar'),(4,'Apr'),(5,'May'),(6,'Jun'),
+                              (7,'Jul'),(8,'Aug'),(9,'Sep'),(10,'Oct'),(11,'Nov'),(12,'Dec')] %}
+            <option value="{{ m }}" {% if filter_month == m %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-sm-4 col-md-auto">
+        <label class="form-label small mb-1">Quarter</label>
+        <select name="quarter" class="form-select form-select-sm">
+          <option value="">All Quarters</option>
+          <option value="1" {% if filter_quarter == 1 %}selected{% endif %}>Q1 (Jan–Mar)</option>
+          <option value="2" {% if filter_quarter == 2 %}selected{% endif %}>Q2 (Apr–Jun)</option>
+          <option value="3" {% if filter_quarter == 3 %}selected{% endif %}>Q3 (Jul–Sep)</option>
+          <option value="4" {% if filter_quarter == 4 %}selected{% endif %}>Q4 (Oct–Dec)</option>
+        </select>
+      </div>
+      <div class="col-6 col-sm-4 col-md-auto">
+        <label class="form-label small mb-1">Category</label>
+        <select name="category" class="form-select form-select-sm">
+          <option value="">All Categories</option>
+          {% for c in all_categories %}
+            <option value="{{ c }}" {% if filter_category == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-12 col-sm-auto d-flex gap-2">
+        <button type="submit" class="btn btn-secondary btn-sm flex-fill flex-sm-grow-0">Filter</button>
+        <a href="{{ url_for('house.index') }}" class="btn btn-outline-secondary btn-sm flex-fill flex-sm-grow-0">Clear</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ---- Stat cards ---- #}
+<div class="row g-3 mb-4">
+  <div class="col-sm-4">
+    <div class="card stat-card text-center py-3">
+      <div class="text-muted small">Pre-Tax Subtotal</div>
+      <div class="display-6 fw-bold">${{ "%.2f"|format(total_price) }}</div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card stat-card text-center py-3">
+      <div class="text-muted small">Tax</div>
+      <div class="display-6 fw-bold">${{ "%.2f"|format(total_tax) }}</div>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card stat-card text-center py-3 bg-primary text-white">
+      <div class="small opacity-75">Total with Tax</div>
+      <div class="display-6 fw-bold">${{ "%.2f"|format(total_with_tax) }}</div>
+    </div>
+  </div>
+</div>
+
+{# ---- Chart ---- #}
+<div class="card mb-4">
+  <div class="card-header d-flex align-items-center gap-2 py-2">
+    <span class="fw-semibold me-2">Spending</span>
+    <div class="btn-group btn-group-sm" role="group">
+      <button type="button" class="btn btn-primary active" id="btnByCategory">By Category</button>
+      <button type="button" class="btn btn-outline-secondary" id="btnByProject">By Project</button>
+      <button type="button" class="btn btn-outline-secondary" id="btnByMonth">By Month</button>
+    </div>
+  </div>
+  <div class="card-body chart-container">
+    <canvas id="spendingChart"></canvas>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  {# ---- By Category ---- #}
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">By Category</div>
+      <div class="card-body p-0">
+        {% if by_category %}
+          <table class="table table-sm mb-0">
+            <thead><tr><th>Category</th><th class="text-end">Total (w/ tax)</th></tr></thead>
+            <tbody>
+              {% for cat, amt in by_category %}
+                <tr>
+                  <td>{{ cat }}</td>
+                  <td class="text-end">${{ "%.2f"|format(amt) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="text-muted p-3 mb-0">No expenses match the current filters.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# ---- By Project ---- #}
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">By Project</div>
+      <div class="card-body p-0">
+        {% if by_project %}
+          <table class="table table-sm mb-0">
+            <thead><tr><th>Project</th><th class="text-end">Total (w/ tax)</th></tr></thead>
+            <tbody>
+              {% for proj, amt in by_project %}
+                <tr>
+                  <td>{{ proj }}</td>
+                  <td class="text-end">${{ "%.2f"|format(amt) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="text-muted p-3 mb-0">No expenses match the current filters.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ---- Expense list ---- #}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span class="fw-semibold">Expenses ({{ expenses|length }})</span>
+  </div>
+  <div class="card-body p-0">
+    {% if expenses %}
+    <div class="table-responsive">
+      <table class="table table-hover table-sm mb-0">
+        <thead>
+          <tr>
+            <th>Date</th><th>Item</th><th>Category</th>
+            <th>Project</th><th>Retailer</th>
+            <th class="text-end">Price</th><th class="text-end">Tax</th>
+            <th class="text-end">Total</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in expenses %}
+          <tr>
+            <td class="text-nowrap">{{ e.expenditure_date.strftime('%Y-%m-%d') }}</td>
+            <td>
+              {{ e.item }}
+              {% if e.description %}
+                <br><small class="text-muted">{{ e.description[:80] }}{% if e.description|length > 80 %}…{% endif %}</small>
+              {% endif %}
+            </td>
+            <td><span class="badge bg-secondary">{{ e.category }}</span></td>
+            <td>{{ e.project.name }}</td>
+            <td>{{ e.retailer.name if e.retailer else '—' }}</td>
+            <td class="text-end">${{ "%.2f"|format(e.price) }}</td>
+            <td class="text-end text-muted small">
+              ${{ "%.2f"|format(e.effective_tax) }}
+              {% if e.tax is none %}<span class="text-muted" title="Auto-calculated at 5.5%">*</span>{% endif %}
+            </td>
+            <td class="text-end fw-semibold">${{ "%.2f"|format(e.total_with_tax) }}</td>
+            <td class="text-nowrap">
+              <a href="{{ url_for('house.edit_expense', expense_id=e.id) }}" class="btn btn-sm btn-outline-secondary py-0">
+                <i class="bi bi-pencil"></i>
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <p class="text-muted p-3 mb-0">No expenses found. <a href="{{ url_for('house.add_expense') }}">Add one</a>.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const COLORS = [
+  '#0d6efd','#6610f2','#198754','#fd7e14','#0dcaf0','#d63384','#ffc107','#20c997'
+];
+
+const datasets = {
+  category: {
+    labels: {{ chart_category_labels | tojson }},
+    data:   {{ chart_category_values | tojson }},
+  },
+  project: {
+    labels: {{ chart_project_labels | tojson }},
+    data:   {{ chart_project_values | tojson }},
+  },
+  month: {
+    labels: {{ chart_month_labels | tojson }},
+    data:   {{ chart_month_values | tojson }},
+  },
+};
+
+function makeChartData(key) {
+  const d = datasets[key];
+  return {
+    labels: d.labels,
+    datasets: [{
+      data: d.data,
+      backgroundColor: d.labels.map((_, i) => COLORS[i % COLORS.length]),
+      borderRadius: 4,
+    }]
+  };
+}
+
+const ctx = document.getElementById('spendingChart').getContext('2d');
+const chart = new Chart(ctx, {
+  type: 'bar',
+  data: makeChartData('category'),
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => '$' + ctx.parsed.y.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: v => '$' + v.toLocaleString('en-US') }
+      }
+    }
+  }
+});
+
+function switchChart(key, activeBtn) {
+  chart.data = makeChartData(key);
+  chart.update();
+  document.querySelectorAll('#btnByCategory,#btnByProject,#btnByMonth').forEach(b => {
+    b.classList.remove('btn-primary', 'active');
+    b.classList.add('btn-outline-secondary');
+  });
+  activeBtn.classList.remove('btn-outline-secondary');
+  activeBtn.classList.add('btn-primary', 'active');
+}
+
+document.getElementById('btnByCategory').addEventListener('click', function() { switchChart('category', this); });
+document.getElementById('btnByProject').addEventListener('click',  function() { switchChart('project',  this); });
+document.getElementById('btnByMonth').addEventListener('click',    function() { switchChart('month',    this); });
+</script>
+{% endblock %}
