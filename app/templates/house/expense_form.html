@@ -61,7 +61,7 @@
               {{ form.project_id(class="form-select" + (" is-invalid" if form.project_id.errors else "")) }}
               {% for e in form.project_id.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
               <div class="form-text">
-                <a href="{{ url_for('house.add_project') }}?popup=1" target="_blank">+ Add project</a>
+                <a href="{{ url_for('house.add_project') }}?popup=1" target="_blank" rel="opener">+ Add project</a>
               </div>
             </div>
 
@@ -69,7 +69,7 @@
               <label class="form-label">{{ form.retailer_id.label.text }}</label>
               {{ form.retailer_id(class="form-select") }}
               <div class="form-text">
-                <a href="{{ url_for('house.add_retailer') }}?popup=1" target="_blank">+ Add retailer</a>
+                <a href="{{ url_for('house.add_retailer') }}?popup=1" target="_blank" rel="opener">+ Add retailer</a>
               </div>
             </div>
 
